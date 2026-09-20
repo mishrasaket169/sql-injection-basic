@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="login-grid">
+      <form class="login-box" data-mode="safe">
+        <h1>Login</h1>
+        <input name="username" placeholder="Username" autocomplete="username" required />
+        <input name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit">Sign in</button>
+        <div class="result" aria-live="polite"></div>
+      </form>
+
+      <form class="login-box" data-mode="vulnerable">
+        <h1>Login</h1>
+        <input name="username" placeholder="Username" autocomplete="username" required />
+        <input name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit">Sign in</button>
+        <div class="result" aria-live="polite"></div>
+      </form>
+    </main>
+    <script>
+      document.querySelectorAll("form").forEach((form) => {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const result = form.querySelector(".result");
+          result.className = "result loading";
+          result.textContent = "Checking...";
+          const response = await fetch(`/api/login/${form.dataset.mode}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(new FormData(form)),
+          });
+          const data = await response.json();
+          result.className = `result ${data.authenticated ? "success" : "denied"}`;
+          result.textContent = data.message;
+        });
+      });
+    </script>
+  </body>
+</html>
